@@ -1,0 +1,217 @@
+--Работа с установкой gulp--
+
+1)  C:\Users\MSI>npm r -g gulp-cli
+
+    removed 237 packages in 1.817s
+
+2) Добовление в консоль для запуска gulp глобально
+
+    npm i gulp-cli -g   
+
+3) Проверка установленный модулей 
+
+    npm ls -g --depth=0 
+
+4) Перход в нужную папку и инициолизацию gulp и создаем папку node_modules
+
+    npm i gulp
+
+    C:\Users\MSI>cd C:\gulp__lesson
+
+5) очистка консоли 
+
+    C:\gulp__lesson>cls
+
+6) выход из режима смотрения консоли путем нажатия ctrl + c два раза
+
+
+7) Создание файла package.json 
+ // перенос зборки проэкта с места на место, внего будут поподать необходимые модули
+
+     C:\gulp__lesson>npm init -y  // -y для того чтобы не нажимать enter в консоли
+
+----------------------------Работа с изображениями -----------------------------
+
+1) устанвалеваем модуль gulp-imagemin
+
+    npm install --save-dev gulp-imagemin
+
+
+---------------------------- Работа с препроцессорами Sass less Stylus ------------ 
+
+1) загруска всеx модулей
+
+    npm i 
+
+2) устновка препроцессоров
+
+    npm i gulp-sourcemaps gulp-less gulp-sass gulp-stylus --sD 
+    // локально в package.json
+
+3) при работе с scss, sass, less
+
+    3.1 измение типа фала и пути под строкой  //Порядок подключения css файлов
+
+    3.2 добовление в функцию function styles () .pipe
+
+     .pipe(sourcemaps.init()) 
+     .pipe(sass()) // изменяем на less либо stylus
+     .pipe(sourcemaps.write("./"))
+   
+    3.3 добовление в функцию function watch () 
+
+    gulp.watch("./src/css/**/*.scss", styles);
+    gulp.watch("./src/css/**/*.sass", styles);
+
+      
+-------------------------------- Работа с тасками -------------
+
+                            ---Работа с css тасками---   
+
+
+1)  устнаовка gulp-concat для объеденения файлов
+
+    npm i gulp-concat -D // -D коротка форма записи save dev 
+
+2) добовление массива для включения файлов css очередности в общий фаил 
+
+    const cssFile = [
+        './src/css/some.css',      // первый 
+        './src/css/other.css'      // второй 
+    ]
+
+3) установка автопрефексера 
+
+    npm install --save-dev gulp-autoprefixer
+
+    3.1) подключение после .pipe(concat('all.css'))
+
+        .pipe(autoprefixer({
+            cascade: false
+        }))
+  
+4) установка clean-css финальное оптимизация css стилей 
+
+    npm install gulp-clean-css --save-dev
+
+    4.1) подключение после .pipe(autoprefixer({  
+
+         .pipe(cleanCSS({compatibility: 'ie8'}))
+
+    4.2) устновка настроек менификации css  на level 2
+
+         .pipe(cleanCSS({level 2}))
+
+        //-----level 2 возможность объеденения медиа запросов, компоновка кода 
+
+
+                               -----Работа с JS файлами-----
+
+1) подключаем модуль в файле gulpfile.js
+ 
+  const contact = require('gulp-concat');
+ 
+  1.1) прописуем function 
+  styles(){
+        .pipe(concat('all.js'))  
+    }
+
+2) подключение gulp-uglify для минификации js кода 
+
+    npm install --save-dev gulp-uglify
+
+    13.2) подключения настройки 
+         .pipe(uglify({
+             toplevel: true
+         })) 
+
+                              //ВСПОГАТЕЛЬНЫЕ настройки
+
+1) подключение автообновления в css и js 
+
+    1.1) прописуем функцию watch
+
+    function watch(){
+        gulp.watch('./src/css/**/*.css', styles); // cлежение за всеми файлами .css и запускать функцию styles
+        gulp.watch('./src/js/**/*.js', scripts);
+    }
+
+    1.2) указываем task
+    gulp.task('watch', watch);
+
+2) подключение модуля del для удаления любых файлов
+
+    2.1) установка
+    
+     $ npm install del
+
+    15.2) написании функцию 
+
+    function clean(){
+    del('[build/*]')  // удаления всех фалов в build
+    }
+
+3)  принципы работы gulp.series и gulp.parallel 
+
+   16.1) написание таска для последовотольной выполнения команды clean и поролельной styles и scripts
+
+    gulp.task('build', gulp.series(clean,              // series --> последовательно очищем clean а потом 
+                        gulp.parallel(styles, scripts) // выполняем styles и scripts
+                    ));
+
+    15.4) запуск в кансоли gulp build
+
+17) работа с картинками и SVG
+     17.1)Если нет нужды оброботки картинок или SVG графики можно просто положит в папку к HTML и укзаит путь
+
+
+18) подключение синхронизации с браузером через https://www.browsersync.io/
+
+   18.1) устанвалеваем локально 
+
+   C:\gulp__lesson>npm install -D browser-sync
+
+   18.2) заходим в  https://browsersync.io/docs/gulp
+
+        18.2.1) подключение переменной 
+
+        const browserSync = require('browser-sync').create();
+
+   18.3) всталяем инициолизацию в функцию watch 
+
+    function watch(){
+
+        browserSync.init({  // инициолизирум синхронизацию 
+            server: {
+                baseDir: "./"  // в какой папке искать HTML фаил 
+            }
+        });
+        
+        gulp.watch('./src/css/**/*.css', styles); // cлежение за всеми файлами .css и запускать функцию styles
+        gulp.watch('./src/js/**/*.js', scripts);
+    }
+
+    18.4) при изменении css и js  добовление в функциии pipe синхронизации
+                function styles(){
+                    ***
+                .pipe(browserSync.stream());   // синхронизации с браузером 
+                }
+
+                function scripts(){
+                    ***
+                .pipe(browserSync.stream());   // синхронизации с браузером 
+                }
+    18.5) при изменении HTML добовление в функцию 
+
+                function watch(){
+                    ***
+                gulp.watch('./*.html', browserSync.reload); // при изменении в HTML запуск browserSync.reload
+                }
+
+
+ 
+
+
+
+
+
